@@ -1,9 +1,9 @@
 var cx, cy, grow, snakePos, dir, canvas;
 var decPos = [];
-var sqSize = 25;
+var sqSize = 50;
 var sqPerc = 0.92;
-var cHeight = 30,
-    cWidth = 40;
+var cHeight = 15,
+    cWidth = 20;
 var gameOver = false;
 var foodx, foody;
 
@@ -102,7 +102,7 @@ function gameFrame() {
         y: cy
     });
     if (cx == foodx && cy == foody) {
-        grow += 5;
+        grow += 1;
         addFood();
     }
     for (i = 0; i < decPos.length; i++) {
@@ -110,7 +110,7 @@ function gameFrame() {
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = 'rgba(255,0,0,0.2)'
+    ctx.fillStyle = 'rgba(255,0,0,0)'
     for (i = 0; i < decPos.length; i++)
         ctx.fillRect(decPos[i].x * sqSize, decPos[i].y * sqSize, sqSize * sqPerc, sqSize * sqPerc);
 
@@ -128,18 +128,20 @@ function handleArrows() {
             startGame();
             return;
         }
+
         const key = event.key;
+        console.log(key);
         switch (event.key) {
-            case "ArrowLeft":
+            case "a":
                 if (dir != 'right') dir = 'left';
                 break;
-            case "ArrowRight":
+            case "d":
                 if (dir != 'left') dir = 'right';
                 break;
-            case "ArrowUp":
+            case "w":
                 if (dir != 'down') dir = 'up';
                 break;
-            case "ArrowDown":
+            case "s":
                 if (dir != 'up') dir = 'down';
                 break;
         }
