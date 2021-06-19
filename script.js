@@ -1,9 +1,9 @@
 var cx, cy, grow, snakePos, dir, canvas;
 var decPos = [];
-var sqSize = 50;
-var sqPerc = 0.92;
-var cHeight = 15,
-    cWidth = 20;
+var sq = 25;
+var sqPerc = 0.8;
+var cHeight = 30,
+    cWidth = 50;
 var gameOver = false;
 var foodx, foody;
 
@@ -25,7 +25,7 @@ function addFood() {
 
 function startGame() {
     gameOver = false;
-    grow = 4;
+    grow = 25;
     cx = 10;
     cy = 9;
     snakePos = [];
@@ -42,8 +42,8 @@ function startGame() {
 
 function drawCanvas() {
     canvas = document.createElement('canvas');
-    canvas.setAttribute('width', (cWidth * sqSize) + 'px');
-    canvas.setAttribute('height', (cHeight * sqSize) + 'px');
+    canvas.setAttribute('width', (cWidth * sq) + 'px');
+    canvas.setAttribute('height', (cHeight * sq) + 'px');
     canvas.setAttribute('id', 'kanwa');
     document.body.appendChild(canvas);
 }
@@ -55,70 +55,105 @@ function preventScroll() {
         }
     }, false);
 }
+var lm = -1;
 
-function gameFrame() {
+function gameFrame(mstm) {
 
-
+    tm = mstm / 1000;
+    gtm = Math.floor(mstm / 100);
     if (dir == 'none') return;
 
-
-    switch (dir) {
-        case "left":
-            cx -= 1;
-            break;
-        case "right":
-            cx += 1;
-            break;
-        case "up":
-            cy -= 1;
-            break;
-        case "down":
-            cy += 1;
-            break;
-    }
-    if (cx >= cWidth || cx < 0 || cy >= cHeight || cy < 0) {
-        dir = 'none';
-        gameOver = true;
-        return;
-    }
-    for (i = 0; i < snakePos.length; i++) {
-        if (cx == snakePos[i].x && cy == snakePos[i].y) {
-            dir = 'none';
-            gameOver = true;
-            return;
+    if (gtm != lm) {
+        lm = gtm;
+        switch (dir) {
+            case "left":
+                cx -= 1;
+                break;
+            case "right":
+                cx += 1;
+                break;
+            case "up":
+                cy -= 1;
+                break;
+            case "down":
+                cy += 1;
+                break;
         }
 
-    }
 
-    if (grow == 0) {
-        if (snakePos.length > 0) {
-            var last = snakePos.pop();
-            //ctx.clearRect(last.x * sqSize, last.y * sqSize, sqSize, sqSize);
+        if (cx >= cWidth || cx < 0) {
+            cx = (cx + cWidth) % cWidth;
+            cy = Math.floor(Math.random() * cHeight);
         }
-    } else grow -= 1;
+        /*for (i = 0; i < snakePos.length; i++) {
+            if (cx == snakePos[i].x && cy == snakePos[i].y) {
+                dir = 'none';
+                gameOver = true;
+                return;
+            }
 
-    snakePos.unshift({
-        x: cx,
-        y: cy
-    });
-    if (cx == foodx && cy == foody) {
-        grow += 1;
-        addFood();
-    }
-    for (i = 0; i < decPos.length; i++) {
-        decPos[i].x = (decPos[i].x + 1) % cWidth;
-    }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }*/
 
+        if (grow == 0) {
+            if (snakePos.length > 0) {
+                var last = snakePos.pop();
+                //ctx.clearRect(last.x * sqSize, last.y * sqSize, sqSize, sqSize);
+            }
+        } else grow -= 1;
+
+        snakePos.unshift({
+            x: cx,
+            y: cy
+        });
+        if (cx == foodx && cy == foody) {
+            grow += 5;
+            addFood();
+        }
+        for (i = 0; i < decPos.length; i++) {
+            decPos[i].x = (decPos[i].x + 1) % cWidth;
+        }
+    }
+
+
+
+    ctx.fillStyle = 'rgba(34,34,34,' + (Math.sin(tm * 0.3) * 0.5 + 0.5) + ')';
+    ctx.fillStyle = 'rgba(34,34,34,' + 0.05 + ')';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    var sc = 1.0 + Math.sin(tm * 0.5) * 0.1;
+    ctx.scale(sc, sc);
+    ctx.rotate(Math.sin(tm * 0.1) * 0.1);
+    var sx = -canvas.width / 2,
+        sy = -canvas.height / 2;
+
+
+
+
+
+    for (i = 0; i < cHeight; i++) {
+        for (j = 0; j < cWidth; j++) {
+            ctx.fillStyle = 'rgba(' + (Math.sin(tm * 0.1 + j * 0.1) * 100 + 150) + ',' + (Math.sin(tm * 0.2 + i * 0.13) * 100 + 150) + ',' + (Math.sin(tm * 0.3) * 100 + 150) + ',1)';
+            var a = Math.sin(tm + (j * -0.07) + i * 0.05) * 0.3 + 0.4;
+            ctx.fillRect(sx + j * sq, sy + i * sq, 0.9 * sq, a * sq);
+            ctx.fillRect(sx + j * sq, sy + i * sq, a * sq, 0.9 * sq);
+        }
+    }
+
+    ctx.fillStyle = 'white';
+    ctx.fillRect(Math.sin(tm * 0.5) * 100, Math.cos(tm * 0.5) * 100, sq, sq);
     ctx.fillStyle = 'rgba(255,0,0,0)'
     for (i = 0; i < decPos.length; i++)
-        ctx.fillRect(decPos[i].x * sqSize, decPos[i].y * sqSize, sqSize * sqPerc, sqSize * sqPerc);
+        ctx.fillRect(decPos[i].x * sq, decPos[i].y * sq, sq * sqPerc, sq * sqPerc);
 
-    ctx.fillStyle = 'pink';
-    ctx.fillRect(foodx * sqSize, foody * sqSize, sqSize * sqPerc, sqSize * sqPerc);
-    ctx.fillStyle = 'rgba(255,0,0,1)';
+    ctx.fillStyle = 'white';
+    ctx.fillRect(sx + foodx * sq, sy + foody * sq, sq * sqPerc, sq * sqPerc);
+    ctx.fillStyle = 'white';
     for (i = 0; i < snakePos.length; i++)
-        ctx.fillRect(snakePos[i].x * sqSize, snakePos[i].y * sqSize, sqSize * sqPerc, sqSize * sqPerc);
+        ctx.fillRect(sx + snakePos[i].x * sq, sy + snakePos[i].y * sq, sq * sqPerc, sq * sqPerc);
+    ctx.restore();
+    requestAnimationFrame(gameFrame);
 
 }
 
@@ -150,7 +185,7 @@ function handleArrows() {
 
 
 function initGame() {
-    clock = setInterval(gameFrame, 100);
+    requestAnimationFrame(gameFrame);
     handleArrows();
 
 }
